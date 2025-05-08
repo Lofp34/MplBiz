@@ -1,0 +1,39 @@
+[
+    {
+        "nom": "Serre",
+        "prenom": "Laurent ",
+        "email": "ls@laurentserre.com",
+        "entreprise": "Homo Promptus",
+        "telephone": "0614944060",
+        "activities": {
+            "Randonnée": 0,
+            "Course à pied": 3,
+            "Vélo": 2,
+            "Yoga": 0,
+            "Promener son chien": 3,
+            "Natation": 3,
+            "Lecture": 3,
+            "Jeux de société": 3,
+            "Cuisine": 2,
+            "Dégustation de vins": 2,
+            "Musique (écoute ou pratique)": 2,
+            "Jardinage": 2,
+            "Théâtre / cinéma": 2,
+            "Jeux de cartes (belote, tarot…)": 2,
+            "Échecs": 2,
+            "Sorties culturelles (musées, expositions…)": 2,
+            "Bricolage": 2,
+            "Voyages": 2,
+            "Activités avec enfants en bas âge": 2,
+            "Garde d’enfants ou babysitting d’adolescents": 2,
+            "Pêche": 2,
+            "Wakeboard": 2,
+            "Sortie nautique": 2
+        },
+        "autres_activites": "Je fais du squash\n",
+        "chien": true,
+        "enfants_bas_age": false,
+        "enfants_babysitting": true,
+        "timestamp": "2025-05-08 12:56:03"
+    }
+]
