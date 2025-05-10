@@ -3,10 +3,12 @@ import flask
 import json
 import os
 from datetime import datetime
+from flask import request, redirect, url_for, session, render_template_string
 
 # Initialisation de l'application Flask
 app = flask.Flask(__name__)
 app.secret_key = 'supersecretkey' # Important pour les messages flash
+ADMIN_PASSWORD = "Lolompl34"
 
 # Chemin vers le fichier de données JSON
 DATA_FILE = 'data.json'
@@ -15,13 +17,16 @@ DATA_FILE = 'data.json'
 PREDEFINED_ACTIVITIES = [
     "Randonnée", "Course à pied", "Vélo", "Yoga", "Promener son chien",
     "Natation", "Lecture", "Jeux de société", "Cuisine", "Dégustation de vins",
-    "Musique (écoute ou pratique)", "Jardinage", "Théâtre / cinéma",
+    "Instrument de musique", "Jardinage", "Théâtre / cinéma",
     "Jeux de cartes (belote, tarot…)", "Échecs", "Sorties culturelles (musées, expositions…)",
-    "Bricolage", "Voyages", "Activités avec enfants en bas âge",
-    "Garde d’enfants ou babysitting d’adolescents",
+    "Bricolage", "Voyages",
     "Pêche", # Ajouté
     "Wakeboard", # Ajouté
-    "Sortie nautique" # Ajouté
+    "Sortie nautique", # Ajouté
+    "Football", # Ajouté
+    "Squash", # Ajouté
+    "Paddle", # Ajouté
+    "Badminton" # Ajouté
 ]
 
 def load_data():
@@ -91,13 +96,33 @@ def submit_form():
         app.logger.error(flask.request.data) # Log raw data for debugging
         return flask.jsonify({'success': False, 'message': f'Une erreur est survenue: {str(e)}'}), 500
 
-@app.route('/admin')
+@app.route('/admin', methods=['GET', 'POST'])
 def admin_view():
-    """Affiche la page d'administration avec les données collectées."""
+    if 'admin_authenticated' not in session:
+        if request.method == 'POST':
+            password = request.form.get('password', '')
+            if password == ADMIN_PASSWORD:
+                session['admin_authenticated'] = True
+                return redirect(url_for('admin_view'))
+            else:
+                error = "Mot de passe incorrect."
+                return render_template_string('''
+                    <form method="post" class="max-w-sm mx-auto mt-16 bg-white p-8 rounded shadow">
+                        <h2 class="text-xl font-bold mb-4">Accès Admin</h2>
+                        <input type="password" name="password" placeholder="Mot de passe" class="form-input w-full mb-4" required>
+                        <button type="submit" class="btn-submit">Se connecter</button>
+                        <p class="text-red-600 mt-2">{{ error }}</p>
+                    </form>
+                ''', error=error)
+        return render_template_string('''
+            <form method="post" class="max-w-sm mx-auto mt-16 bg-white p-8 rounded shadow">
+                <h2 class="text-xl font-bold mb-4">Accès Admin</h2>
+                <input type="password" name="password" placeholder="Mot de passe" class="form-input w-full mb-4" required>
+                <button type="submit" class="btn-submit">Se connecter</button>
+            </form>
+        ''')
     data = load_data()
-    # S'assurer que toutes les activités prédéfinies sont présentes dans l'en-tête, même si aucune donnée n'existe encore
-    # ou si les données existantes ne les incluent pas toutes (par exemple, si la liste a été étendue après les premières saisies).
-    current_activities_header = PREDEFINED_ACTIVITIES[:] # Copie de la liste
+    current_activities_header = PREDEFINED_ACTIVITIES[:]
     return flask.render_template('admin.html', members=data, activities_header=current_activities_header, now=datetime.utcnow)
 
 
@@ -122,7 +147,7 @@ if __name__ == '__main__':
     print(f"- {admin_html_example_path}")
     print("Vous pouvez copier le contenu HTML fourni dans ces fichiers.")
     print(f"Exécutez l'application avec: python {os.path.basename(__file__)}")
-    print(f"Accédez au formulaire à l'adresse: http://127.0.0.1:5000/")
-    print(f"Accédez à la page admin à l'adresse: http://127.0.0.1:5000/admin")
+    print(f"Accédez au formulaire à l'adresse: http://127.0.0.1:5001/")
+    print(f"Accédez à la page admin à l'adresse: http://127.0.0.1:5001/admin")
     
-    app.run(debug=True) # debug=True pour le développement, à retirer en production
+    app.run(debug=True, port=5001) # Utilisation du port 5001 au lieu de 5000

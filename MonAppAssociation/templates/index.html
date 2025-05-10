@@ -44,58 +44,24 @@
             @apply bg-white/40 backdrop-blur-md border border-white/30 rounded-xl shadow-xl p-5;
         }
 
-        /* Styles pour les sliders personnalisés */
-        .custom-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 10px; 
-            background: rgba(255, 255, 255, 0.5); 
-            border-radius: 5px;
-            outline: none;
-            cursor: pointer;
-            transition: background 0.3s ease-in-out;
+        /* Styles pour les boutons radio */
+        .peer:checked + span.emoji {
+            transform: scale(1.4) rotate(-8deg);
+            transition: transform 0.15s cubic-bezier(0.4,0,0.2,1);
+            filter: drop-shadow(0 2px 6px rgba(79,70,229,0.25));
         }
-
-        .custom-slider:hover {
-            background: rgba(255, 255, 255, 0.7);
+        .peer:checked ~ span.label {
+            @apply text-indigo-700 font-bold;
         }
-
-        .custom-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 22px; 
-            height: 22px; 
-            background: #4f46e5; 
-            border-radius: 50%; 
-            border: 3px solid white; 
-            cursor: pointer;
-            margin-top: -6px; 
-            box-shadow: 0 0 5px rgba(0,0,0,0.2); 
+        label.radio-emoji {
+            @apply border-2 border-gray-300 bg-white transition-all duration-150;
         }
-
-        .custom-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #4f46e5;
-            border-radius: 50%;
-            border: 3px solid white;
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        label.radio-emoji:hover {
+            @apply border-indigo-400 bg-indigo-50;
         }
-         .custom-slider::-moz-range-track {
-            width: 100%;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .slider-value-display {
-            @apply ml-4 text-xl font-semibold text-indigo-700 w-8 text-center transition-transform duration-150 ease-out;
-        }
-        .custom-slider:active + .slider-value-display { 
-            @apply transform scale-125;
+        label.radio-emoji.selected {
+            @apply border-indigo-600 bg-indigo-100 shadow-lg;
+            box-shadow: 0 0 0 2px #6366f1;
         }
 
     </style>
@@ -127,7 +93,7 @@
                     <input type="email" id="email" name="email" required class="form-input">
                 </div>
                 <div>
-                    <label for="entreprise" class="form-label">Nom de l’entreprise <span class="text-red-500">*</span></label>
+                    <label for="entreprise" class="form-label">Nom de l'entreprise <span class="text-red-500">*</span></label>
                     <input type="text" id="entreprise" name="entreprise" required class="form-input">
                 </div>
                 <div>
@@ -139,25 +105,39 @@
 
             <fieldset class="border p-4 rounded-md">
                 <legend class="text-lg font-semibold text-gray-800 px-2">Préférences d'Activités</legend>
-                <p class="text-sm text-gray-600 mb-4">Notez chaque activité de 0 à 4 :<br>
-                    <span class="font-medium">0:</span> Je déteste | <span class="font-medium">1:</span> Ouvert à essayer | <span class="font-medium">2:</span> Pratique occasionnelle | <span class="font-medium">3:</span> Pratique régulière | <span class="font-medium">4:</span> Pratique à très haut niveau
-                </p>
-                <div class="space-y-6"> {# Conteneur principal pour toutes les activités #}
+                <p class="text-sm text-gray-600 mb-4">Sélectionnez votre niveau de pratique pour chaque activité :</p>
+                <div class="space-y-6">
                     {% for activity in activities %}
-                        {# Correction de la normalisation de l'ID en chaînant les filtres replace #}
-                        {% set activity_normalized = activity|replace(' ', '_')|replace('(', '')|replace(')', '')|replace('…', '')|replace('/', '_')|replace('ô', 'o')|replace('é', 'e')|replace('à', 'a')|replace('è', 'e')|replace('ê', 'e')|replace('’', '') %}
+                        {% set activity_normalized = activity|replace(' ', '_')|replace('(', '')|replace(')', '')|replace('…', '')|replace('/', '_')|replace('ô', 'o')|replace('é', 'e')|replace('à', 'a')|replace('è', 'e')|replace('ê', 'e')|replace("'", '') %}
                         {% set activity_id_name_base = "activity_" ~ activity_normalized %}
-                        <div class="glass-card"> {# "Carte" pour chaque activité avec effet glassmorphism #}
+                        <div class="glass-card">
                             <p class="font-semibold text-gray-800 mb-3 text-md">{{ activity }}</p>
-                            <div class="flex items-center mt-2">
-                                <input type="range" 
-                                       id="{{ activity_id_name_base }}" 
-                                       name="{{ activity_id_name_base }}" 
-                                       min="0" 
-                                       max="4" 
-                                       value="2" {# Note 2 sélectionnée par défaut #}
-                                       class="custom-slider flex-grow">
-                                <span class="slider-value-display" id="{{ activity_id_name_base }}_value_display">2</span> {# Affichage de la valeur initiale #}
+                            <div class="grid grid-cols-5 gap-2">
+                                <label class="radio-emoji flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                                    <input type="radio" name="{{ activity_id_name_base }}" value="0" class="hidden peer">
+                                    <span class="emoji text-2xl mb-1">😫</span>
+                                    <span class="label text-xs text-center">Je déteste</span>
+                                </label>
+                                <label class="radio-emoji flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                                    <input type="radio" name="{{ activity_id_name_base }}" value="1" class="hidden peer">
+                                    <span class="emoji text-2xl mb-1">🤔</span>
+                                    <span class="label text-xs text-center">Ouvert à essayer</span>
+                                </label>
+                                <label class="radio-emoji flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                                    <input type="radio" name="{{ activity_id_name_base }}" value="2" class="hidden peer">
+                                    <span class="emoji text-2xl mb-1">😊</span>
+                                    <span class="label text-xs text-center">Occasionnel</span>
+                                </label>
+                                <label class="radio-emoji flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                                    <input type="radio" name="{{ activity_id_name_base }}" value="3" class="hidden peer">
+                                    <span class="emoji text-2xl mb-1">😃</span>
+                                    <span class="label text-xs text-center">Régulier</span>
+                                </label>
+                                <label class="radio-emoji flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                                    <input type="radio" name="{{ activity_id_name_base }}" value="4" class="hidden peer">
+                                    <span class="emoji text-2xl mb-1">🏆</span>
+                                    <span class="label text-xs text-center">Expert</span>
+                                </label>
                             </div>
                         </div>
                     {% endfor %}
@@ -196,7 +176,7 @@
         </form>
         
         <footer class="text-center mt-8 text-sm text-gray-500">
-            <p>Association Business & Convivialité &copy; {{ now().year if now else '' }}</p>
+            <p>Laurent Serre Développement &copy; {{ now().year if now else '' }}</p>
             <p><a href="/admin" class="text-indigo-600 hover:underline">Voir les données (Admin)</a></p>
         </footer>
     </div>
@@ -245,12 +225,11 @@
                 if (result.success) {
                     displayMessage(result.message, 'success');
                     form.reset(); 
-                    document.querySelectorAll('.custom-slider').forEach(slider => {
-                        const valueDisplay = document.getElementById(slider.id + '_value_display');
-                        if (valueDisplay) {
-                            slider.value = "2"; 
-                            valueDisplay.textContent = "2"; 
-                        }
+                    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                        radio.checked = false;
+                    });
+                    document.querySelectorAll('input[type="radio"][value="0"]').forEach(radio => {
+                        radio.checked = true;
                     });
                     window.scrollTo(0, 0); 
                 } else {
@@ -277,16 +256,20 @@
             messageContainer.appendChild(alertDiv);
         }
 
-        // Script pour mettre à jour l'affichage de la valeur des sliders
+        // Ajout d'un retour visuel sur la sélection d'un radio bouton
         document.addEventListener('DOMContentLoaded', function() {
-            const sliders = document.querySelectorAll('.custom-slider');
-            sliders.forEach(slider => {
-                const valueDisplay = document.getElementById(slider.id + '_value_display');
-                if (valueDisplay) {
-                    slider.addEventListener('input', function() {
-                        valueDisplay.textContent = this.value;
+            document.querySelectorAll('.glass-card .radio-emoji input[type="radio"]').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    // Retirer la classe 'selected' de tous les labels frères
+                    this.closest('.glass-card').querySelectorAll('label.radio-emoji').forEach(function(label) {
+                        label.classList.remove('selected');
                     });
-                    valueDisplay.textContent = slider.value;
+                    // Ajouter la classe 'selected' au label parent
+                    this.parentElement.classList.add('selected');
+                });
+                // Si checked au chargement, appliquer la classe
+                if (radio.checked) {
+                    radio.parentElement.classList.add('selected');
                 }
             });
         });
